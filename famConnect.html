@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FamConnect</title>
+
+  <style>
+    :root {
+      --font-size-base: 16px;
+
+      /* Dark Rich Color Palette */
+      --primary-bg: #1a0a0e;
+      --secondary-bg: #2c1517;
+      --tertiary-bg: #3d1f23;
+      --card-bg: #2a1215;
+
+      /* Accent Colors */
+      --accent-coral: #ff6b6b;
+      --accent-pink: #ff4d6d;
+      --accent-purple: #c77dff;
+      --accent-blue: #4cc9f0;
+      --accent-green: #06ffa5;
+
+      /* Text Colors */
+      --text-primary: #ffffff;
+      --text-secondary: #b8b8b8;
+      --text-muted: #7a7a7a;
+
+      /* Gradients */
+      --gradient-coral: linear-gradient(135deg, #ff6b6b, #ff4d6d);
+      --gradient-purple: linear-gradient(135deg, #c77dff, #9d4edd);
+      --gradient-rainbow: linear-gradient(135deg, #06ffa5, #4cc9f0, #c77dff, #ff4d6d);
+      --gradient-story: linear-gradient(135deg, #06ffa5, #4cc9f0);
+
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 20px rgba(255, 107, 107, 0.3);
+      --shadow-xl: 0 14px 42px rgba(0,0,0,0.6);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-size: var(--font-size-base);
+      background: var(--primary-bg);
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(199, 125, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      line-height: 1.6;
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--secondary-bg);
+      min-height: 100vh;
+      padding: 0;
+      box-shadow: var(--shadow-lg);
+    }
+
+    h1, h2, h3 {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--text-primary);
+    }
+
+    h1 {
+      font-size: calc(var(--font-size-base) * 2);
+      background: var(--gradient-rainbow);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    h2 { font-size: calc(var(--font-size-base) * 1.4); margin-bottom: 14px; }
+    h3 { font-size: calc(var(--font-size-base) * 1.1); margin-bottom: 10px; }
+
+    /* Accessibility Bar */
+    .accessibility-bar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(18px);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 0 0 0 16px;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      box-shadow: var(--shadow-md);
+    }
+    .accessibility-bar span { font-weight: 700; font-size: calc(var(--font-size-base) * 0.8); }
+    .accessibility-bar button {
+      background: var(--gradient-coral);
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: calc(var(--font-size-base) * 0.8);
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .accessibility-bar button:hover { transform: scale(1.05); box-shadow: var(--shadow-glow); }
+
+    /* Sections */
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* AUTH — ONLY shows when active */
+    #authSection {
+      padding: 40px 24px;
+      min-height: 100vh;
+      flex-direction: column;
+      justify-content: center;
+      display: none;
+    }
+    #authSection.active { display: flex; }
+
+    /* DASHBOARD — ONLY shows when active */
+    #dashboardSection { display: none; }
+    #dashboardSection.active { display: block; min-height: 100vh; }
+
+    /* Forms */
+    .form-group { margin-bottom: 18px; }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: calc(var(--font-size-base) * 0.9);
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      font-size: calc(var(--font-size-base) * 1);
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-coral);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+    }
+
+    button {
+      background: var(--gradient-coral);
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: calc(var(--font-size-base) * 0.95);
+      font-weight: 800;
+      margin-right: 10px;
+      margin-top: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      letter-spacing: 0.02em;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+    button:active { transform: translateY(0); }
+
+    .success-message, .error-message {
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin: 16px 0 0;
+      display: none;
+      font-size: calc(var(--font-size-base) * 0.95);
+      font-weight: 700;
+      box-shadow: var(--shadow-md);
+    }
+    .success-message { background: linear-gradient(135deg, #06ffa5, #00d084); color: var(--primary-bg); }
+    .error-message { background: var(--gradient-coral); color: white; }
+
+    /* Header */
+    .user-info {
+      background: var(--card-bg);
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      backdrop-filter: blur(20px);
+    }
+    .user-profile { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--gradient-rainbow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      box-shadow: var(--shadow-md);
+      border: 3px solid var(--secondary-bg);
+    }
+    #userBio { font-size: 0.85rem; color: var(--text-secondary); }
+
+    /* Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--card-bg);
+      position: sticky;
+      top: 84px;
+      z-index: 190;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .nav-tabs::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      padding: 14px 18px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 900;
+      color: var(--text-secondary);
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      margin: 0;
+    }
+    .nav-tab:hover { color: var(--text-primary); transform: none; box-shadow: none; }
+    .nav-tab.active {
+      border-bottom-color: var(--accent-coral);
+      color: var(--text-primary);
+    }
+
+    /* Stories */
+    .stories-container {
+      padding: 14px 20px;
+      background: var(--card-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      position: sticky;
+      top: 132px;
+      z-index: 180;
+    }
+    .stories-container::-webkit-scrollbar { display: none; }
+    .stories-wrapper { display: flex; gap: 14px; padding-bottom: 4px; }
+    .story-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; min-width: 70px; }
+    .story-avatar-wrapper { position: relative; width: 60px; height: 60px; }
+    .story-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--gradient-story);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      box-shadow: var(--shadow-md);
+      border: 3px solid transparent;
+      position: relative;
+    }
+    .story-avatar::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: var(--gradient-rainbow);
+      z-index: -1;
+    }
+    .story-avatar.viewed { opacity: 0.6; }
+    .story-avatar.viewed::before { background: rgba(255, 255, 255, 0.25); }
+    .story-name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 700;
+      text-align: center;
+    }
+    .story-badge {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 18px;
+      height: 18px;
+      background: var(--gradient-coral);
+      border-radius: 50%;
+      border: 2px solid var(--card-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 900;
+    }
+    .add-story .story-avatar { background: rgba(255, 255, 255, 0.08); border: 2px dashed rgba(255, 255, 255, 0.25); }
+    .add-story .story-avatar::before { display: none; }
+    .add-story .story-avatar::after { content: '+'; font-size: 2rem; color: var(--accent-coral); }
+
+    /* Feed/Search */
+    .feed-container { padding: 0 20px 18px; }
+    .search-bar { padding: 14px 20px; }
+    .search-bar input { border-radius: 999px; padding: 12px 16px; }
+    .feed-filters { display: flex; gap: 10px; padding: 0 20px 12px; overflow-x: auto; }
+    .feed-filters::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--text-secondary);
+      margin: 0;
+      box-shadow: none;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,0.09); transform: none; box-shadow: none; }
+    .filter-btn.active { background: var(--gradient-coral); color: white; border-color: transparent; box-shadow: var(--shadow-glow); }
+
+    /* Cards */
+    .group-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 18px;
+      margin: 14px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .group-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .post {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      margin: 14px 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .post-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 100%);
+    }
+    .post-author { display: flex; align-items: center; gap: 10px; }
+    .post-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--gradient-story);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900;
+      border: 2px solid var(--card-bg);
+    }
+    .post-author-name { font-weight: 900; }
+    .post-time { font-size: 0.8rem; color: var(--text-muted); }
+    .post-content { padding: 0 16px 14px; color: var(--text-primary); }
+    .post-actions { display: flex; gap: 10px; padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .post-action-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 8px 14px;
+      margin: 0;
+      box-shadow: none;
+      color: var(--text-secondary);
+      font-weight: 900;
+      cursor: pointer;
+    }
+    .post-action-btn:hover { background: rgba(255,107,107,0.08); color: var(--accent-coral); border-color: var(--accent-coral); transform: none; }
+    .post-action-btn.liked { background: var(--gradient-coral); color: white; border-color: transparent; box-shadow: var(--shadow-glow); }
+
+    /* Comments */
+    .comments-section { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.18); }
+    .comment { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; border-left: 3px solid var(--accent-coral); }
+    .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px; }
+    .comment-author { font-weight: 900; }
+    .comment-content { color: var(--text-secondary); font-size: 0.85rem; }
+    .comment-input { display: flex; gap: 10px; margin-top: 10px; }
+    .comment-input input { border-radius: 999px; padding: 10px 14px; }
+    .comment-input button { margin: 0; border-radius: 999px; padding: 10px 16px; }
+
+    /* Empty */
+    .empty-state { text-align: center; padding: 46px 18px; color: var(--text-muted); }
+    .empty-state-icon { font-size: 3.2rem; margin-bottom: 14px; opacity: 0.25; }
+
+    /* Profile */
+    .profile-header {
+      position: relative;
+      margin: 0;
+      height: 220px;
+      overflow: visible; /* IMPORTANT: prevents avatar from being cut off */
+      border-radius: 16px 16px 0 0;
+    }
+    .profile-cover { width: 100%; height: 100%; background: var(--gradient-rainbow); border-radius: 16px 16px 0 0; }
+    .profile-cover.pattern-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .profile-cover.pattern-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .profile-cover.pattern-3 { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .profile-cover.pattern-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .profile-cover.pattern-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+    .profile-avatar-large {
+      position: absolute;
+      bottom: -46px;
+      left: 20px;
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: var(--gradient-rainbow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      font-weight: 900;
+      border: 4px solid var(--secondary-bg);
+      box-shadow: var(--shadow-xl);
+      cursor: pointer;
+    }
+    .profile-edit-btn {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .profile-info-section { padding: 62px 20px 20px; }
+    .profile-stats {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0 18px;
+      padding: 14px;
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .profile-stat { flex: 1; text-align: center; }
+    .profile-stat-value { display: block; font-weight: 900; font-size: 1.4rem; }
+    .profile-stat-label { color: var(--text-secondary); font-size: 0.85rem; }
+
+    /* Modal */
+    .customization-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 18px;
+    }
+    .customization-modal.active { display: flex; }
+    .customization-content {
+      background: var(--secondary-bg);
+      border-radius: 16px;
+      padding: 22px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 82vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .customization-section { margin-bottom: 18px; }
+    .pattern-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .pattern-option {
+      height: 76px;
+      border-radius: 12px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .pattern-option:hover { transform: scale(1.03); box-shadow: var(--shadow-md); }
+    .pattern-option.selected { border-color: var(--accent-coral); box-shadow: var(--shadow-glow); }
+
+    .avatar-color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .avatar-color-option {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .avatar-color-option:hover { transform: scale(1.06); }
+    .avatar-color-option.selected { border-color: var(--accent-coral); box-shadow: var(--shadow-glow); }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions button { flex: 1; margin: 0; }
+
+    /* Plan B Desktop Grid */
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 1200px;
+        margin: 24px auto;
+        border-radius: 18px;
+        min-height: calc(100vh - 48px);
+      }
+
+      .nav-tabs { top: 78px; }
+      .stories-container { top: 126px; }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 320px 1fr 320px;
+        gap: 18px;
+        padding: 18px;
+      }
+
+      .left-rail, .right-rail {
+        position: sticky;
+        top: 170px;
+        align-self: start;
+        height: fit-content;
+      }
+
+      .main-panel { min-width: 0; }
+
+      /* Remove mobile margins for cards on desktop */
+      .post, .group-card { margin-left: 0; margin-right: 0; }
+
+      /* Keep main content readable */
+      #feedView, #myGroupsView, #allGroupsView, #createGroupView, #groupDetailView, #profileView {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      .dashboard-grid { display: block; padding: 0; }
+      .left-rail, .right-rail { display: none; }
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="accessibility-bar" role="toolbar" aria-label="Accessibility controls">
+    <span>Font Size:</span>
+    <button onclick="changeFontSize('decrease')" aria-label="Decrease font size">A-</button>
+    <button onclick="changeFontSize('reset')" aria-label="Reset font size">A</button>
+    <button onclick="changeFontSize('increase')" aria-label="Increase font size">A+</button>
+  </div>
+
+  <div class="container" id="main-content" role="main">
+
+    <!-- AUTH -->
+    <div id="authSection" class="section active">
+      <h1>FamConnect</h1>
+
+      <div id="loginForm">
+        <h2>Login</h2>
+        <form onsubmit="login(event)">
+          <div class="form-group">
+            <label for="loginUsername">Username:</label>
+            <input type="text" id="loginUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password:</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit">Login</button>
+          <button type="button" onclick="showRegister()">New User? Register</button>
+        </form>
+      </div>
+
+      <div id="registerForm" style="display:none;">
+        <h2>Register New Account</h2>
+        <form onsubmit="register(event)">
+          <div class="form-group">
+            <label for="regFullName">Full Name:</label>
+            <input type="text" id="regFullName" required>
+          </div>
+          <div class="form-group">
+            <label for="regUsername">Username:</label>
+            <input type="text" id="regUsername" required>
+          </div>
+          <div class="form-group">
+            <label for="regPassword">Password:</label>
+            <input type="password" id="regPassword" required>
+          </div>
+          <div class="form-group">
+            <label for="regBio">Bio (Optional):</label>
+            <textarea id="regBio" rows="3"></textarea>
+          </div>
+          <button type="submit">Register</button>
+          <button type="button" onclick="showLogin()">Back to Login</button>
+        </form>
+      </div>
+
+      <div id="authMessage" class="success-message" role="alert"></div>
+      <div id="authError" class="error-message" role="alert"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardSection" class="section">
+
+      <div class="user-info">
+        <div class="user-profile">
+          <div class="user-avatar" id="userAvatar" aria-hidden="true"></div>
+          <div>
+            <h2>Welcome, <span id="currentUserName"></span>!</h2>
+            <p id="userBio"></p>
+          </div>
+        </div>
+        <div>
+          <button onclick="showProfile()" aria-label="View profile">Profile</button>
+          <button onclick="logout()" aria-label="Logout">Logout</button>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" role="tablist" aria-label="Main navigation">
+        <button class="nav-tab active" onclick="showFeed()" role="tab" aria-selected="true">Feed</button>
+        <button class="nav-tab" onclick="showMyGroups()" role="tab" aria-selected="false">My Groups</button>
+        <button class="nav-tab" onclick="showAllGroups()" role="tab" aria-selected="false">Discover</button>
+        <button class="nav-tab" onclick="showCreateGroup()" role="tab" aria-selected="false">Create Group</button>
+      </nav>
+
+      <div class="stories-container" id="storiesContainer">
+        <div class="stories-wrapper" id="storiesWrapper"></div>
+      </div>
+
+      <!-- PLAN B: Desktop grid -->
+      <div class="dashboard-grid">
+        <!-- LEFT RAIL -->
+        <aside class="left-rail">
+          <div class="group-card">
+            <h3>Quick Actions</h3>
+            <button type="button" style="width:100%; margin: 8px 0 0 0;" onclick="showCreateGroup()">➕ Create Group</button>
+            <button type="button" style="width:100%; margin: 10px 0 0 0;" onclick="showAllGroups()">🔎 Discover Groups</button>
+            <button type="button" style="width:100%; margin: 10px 0 0 0;" onclick="showMyGroups()">👥 My Groups</button>
+          </div>
+
+          <div class="group-card">
+            <h3>My Groups (Quick)</h3>
+            <div id="leftRailGroups"></div>
+          </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-panel">
+
+          <!-- Feed View -->
+          <div id="feedView" style="display:none;" role="tabpanel">
+            <div class="feed-container">
+              <h2>Your Feed</h2>
+            </div>
+            <div class="search-bar">
+              <input type="search" id="feedSearch" placeholder="Search posts..." onkeyup="filterFeed()" aria-label="Search posts">
+            </div>
+            <div class="feed-filters" role="group" aria-label="Feed filters">
+              <button class="filter-btn active" onclick="filterFeedByType('all', this)">All Posts</button>
+              <button class="filter-btn" onclick="filterFeedByType('myGroups', this)">My Groups</button>
+              <button class="filter-btn" onclick="filterFeedByType('recent', this)">Recent</button>
+            </div>
+            <div id="feedContainer" aria-live="polite"></div>
+          </div>
+
+          <!-- My Groups View -->
+          <div id="myGroupsView" style="display:none;" role="tabpanel">
+            <div class="feed-container"><h2>My Groups</h2></div>
+            <div class="search-bar">
+              <input type="search" id="groupSearch" placeholder="Search my groups..." onkeyup="searchMyGroups()" aria-label="Search my groups">
+            </div>
+            <div id="myGroupsList" aria-live="polite"></div>
+          </div>
+
+          <!-- All Groups View -->
+          <div id="allGroupsView" style="display:none;" role="tabpanel">
+            <div class="feed-container"><h2>Discover Groups</h2></div>
+            <div class="search-bar">
+              <input type="search" id="allGroupSearch" placeholder="Search all groups..." onkeyup="searchAllGroups()" aria-label="Search all groups">
+            </div>
+            <div id="allGroupsList" aria-live="polite"></div>
+          </div>
+
+          <!-- Create Group View -->
+          <div id="createGroupView" style="display:none;" role="tabpanel">
+            <div class="feed-container"><h2>Create New Group</h2></div>
+            <form onsubmit="createGroup(event)" aria-label="Create group form" style="padding:0 20px 20px;">
+              <div class="form-group">
+                <label for="groupName">Group Name:</label>
+                <input type="text" id="groupName" placeholder="Enter group name" required>
+              </div>
+              <div class="form-group">
+                <label for="groupDescription">Group Description:</label>
+                <textarea id="groupDescription" rows="4" placeholder="Describe your group" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="groupCategory">Category:</label>
+                <select id="groupCategory" aria-label="Select group category">
+                  <option value="general">General</option>
+                  <option value="hobbies">Hobbies & Interests</option>
+                  <option value="professional">Professional</option>
+                  <option value="education">Education</option>
+                  <option value="community">Community</option>
+                </select>
+              </div>
+              <button type="submit">Create Group</button>
+            </form>
+            <div id="groupMessage" class="success-message" role="alert" style="margin:0 20px 20px;"></div>
+          </div>
+
+          <!-- Group Detail View -->
+          <div id="groupDetailView" style="display:none;" role="tabpanel">
+            <div class="feed-container" style="padding-bottom:0;">
+              <button onclick="showMyGroups()" aria-label="Back to my groups" style="margin:0 0 10px 0;">← Back</button>
+              <h2 id="groupDetailName"></h2>
+              <p id="groupDetailDescription" style="color:var(--text-secondary);"></p>
+              <p id="groupDetailCategory" style="color: var(--text-muted); font-size: 0.9rem;"></p>
+              <div style="margin: 14px 0;">
+                <strong>Members:</strong> <span id="groupMembers"></span>
+              </div>
+
+              <h3>Discussion Board</h3>
+              <form onsubmit="createPost(event)" aria-label="Create post form">
+                <div class="form-group">
+                  <textarea id="newPostContent" rows="3" placeholder="Share something with the group..." required></textarea>
+                </div>
+                <button type="submit">Post</button>
+              </form>
+            </div>
+            <div id="postsContainer" aria-live="polite"></div>
+          </div>
+
+          <!-- Profile View -->
+          <div id="profileView" style="display:none;" role="tabpanel">
+            <div class="profile-header">
+              <div class="profile-cover" id="profileCover"></div>
+              <div class="profile-avatar-large" id="profileAvatarLarge" onclick="openCustomization()"></div>
+              <button class="profile-edit-btn" onclick="openCustomization()">✏️ Edit Profile</button>
+            </div>
+
+            <div class="profile-info-section">
+              <h2 id="profileDisplayName"></h2>
+              <p id="profileDisplayBio" style="color: var(--text-secondary); margin-bottom: 16px;"></p>
+
+              <div class="profile-stats">
+                <div class="profile-stat">
+                  <span class="profile-stat-value" id="profileGroupCount">0</span>
+                  <span class="profile-stat-label">Groups</span>
+                </div>
+                <div class="profile-stat">
+                  <span class="profile-stat-value" id="profilePostCount">0</span>
+                  <span class="profile-stat-label">Posts</span>
+                </div>
+                <div class="profile-stat">
+                  <span class="profile-stat-value" id="profileCommentCount">0</span>
+                  <span class="profile-stat-label">Comments</span>
+                </div>
+              </div>
+
+              <h3>Edit Profile Information</h3>
+              <form onsubmit="updateProfile(event)" aria-label="Update profile form">
+                <div class="form-group">
+                  <label for="profileName">Full Name:</label>
+                  <input type="text" id="profileName" required>
+                </div>
+                <div class="form-group">
+                  <label for="profileBio">Bio:</label>
+                  <textarea id="profileBio" rows="4" placeholder="Tell us about yourself"></textarea>
+                </div>
+                <button type="submit">Update Profile</button>
+                <button type="button" onclick="showFeed()">Back to Feed</button>
+              </form>
+
+              <div id="profileMessage" class="success-message" role="alert"></div>
+            </div>
+          </div>
+
+          <!-- Customization Modal -->
+          <div class="customization-modal" id="customizationModal">
+            <div class="customization-content">
+              <h3>Customize Your Profile</h3>
+
+              <div class="customization-section">
+                <label>Cover Photo Pattern</label>
+                <div class="pattern-grid">
+                  <div class="pattern-option pattern-1" style="background: linear-gradient(135deg,#667eea,#764ba2);" onclick="selectCoverPattern('pattern-1')"></div>
+                  <div class="pattern-option pattern-2" style="background: linear-gradient(135deg,#f093fb,#f5576c);" onclick="selectCoverPattern('pattern-2')"></div>
+                  <div class="pattern-option pattern-3" style="background: linear-gradient(135deg,#4facfe,#00f2fe);" onclick="selectCoverPattern('pattern-3')"></div>
+                  <div class="pattern-option pattern-4" style="background: linear-gradient(135deg,#43e97b,#38f9d7);" onclick="selectCoverPattern('pattern-4')"></div>
+                  <div class="pattern-option pattern-5" style="background: linear-gradient(135deg,#fa709a,#fee140);" onclick="selectCoverPattern('pattern-5')"></div>
+                  <div class="pattern-option" style="background: var(--gradient-rainbow);" onclick="selectCoverPattern('default')"></div>
+                </div>
+              </div>
+
+              <div class="customization-section">
+                <label>Avatar Color</label>
+                <div class="avatar-color-grid">
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#667eea,#764ba2);" onclick="selectAvatarColor('gradient-1')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#f093fb,#f5576c);" onclick="selectAvatarColor('gradient-2')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#4facfe,#00f2fe);" onclick="selectAvatarColor('gradient-3')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#43e97b,#38f9d7);" onclick="selectAvatarColor('gradient-4')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#fa709a,#fee140);" onclick="selectAvatarColor('gradient-5')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#ff6b6b,#ff4d6d);" onclick="selectAvatarColor('gradient-6')">A</div>
+                  <div class="avatar-color-option" style="background: linear-gradient(135deg,#c77dff,#9d4edd);" onclick="selectAvatarColor('gradient-7')">A</div>
+                  <div class="avatar-color-option" style="background: var(--gradient-rainbow);" onclick="selectAvatarColor('default')">A</div>
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button type="button" onclick="closeCustomization()">Cancel</button>
+                <button type="button" onclick="saveCustomization()">Save Changes</button>
+              </div>
+            </div>
+          </div>
+
+        </main>
+
+        <!-- RIGHT RAIL -->
+        <aside class="right-rail">
+          <div class="group-card">
+            <h3>Your Profile</h3>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <div class="user-avatar" id="userAvatarDesktop" aria-hidden="true"></div>
+              <div>
+                <div style="font-weight:900;" id="currentUserNameDesktop"></div>
+                <div style="color:var(--text-secondary); font-size:0.9rem;" id="userBioDesktop"></div>
+              </div>
+            </div>
+            <button type="button" style="width:100%; margin: 14px 0 0 0;" onclick="showProfile()">✏️ Edit Profile</button>
+          </div>
+
+          <div class="group-card">
+            <h3>Tips</h3>
+            <p style="color:var(--text-secondary); margin:0;">
+              Join groups in <b>Discover</b>. Your feed shows posts from groups you’re in.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------------------------
+    // State
+    // ---------------------------
+    let currentUser = null;
+    let currentGroupId = null;
+    let currentFilter = "all";
+
+    // ---------------------------
+    // Storage Init
+    // ---------------------------
+    function initializeStorage() {
+      const defaults = {
+        users: [],
+        groups: [],
+        posts: [],
+        comments: [],
+        likes: [],
+        fontSize: "16"
+      };
+
+      Object.keys(defaults).forEach(key => {
+        if (!localStorage.getItem(key)) {
+          localStorage.setItem(key, JSON.stringify(defaults[key]));
+        }
+      });
+
+      // fontSize is stored as string in JSON OR raw string in your older versions.
+      // Normalize:
+      try {
+        const fs = JSON.parse(localStorage.getItem("fontSize"));
+        if (typeof fs === "string") localStorage.setItem("fontSize", fs);
+      } catch {}
+      if (!localStorage.getItem("fontSize") || localStorage.getItem("fontSize") === "[]") {
+        localStorage.setItem("fontSize", "16");
+      }
+
+      applyFontSize();
+    }
+
+    // ---------------------------
+    // Font size controls
+    // ---------------------------
+    function changeFontSize(action) {
+      let size = parseInt(localStorage.getItem("fontSize") || "16", 10);
+      if (action === "increase" && size < 24) size += 2;
+      if (action === "decrease" && size > 12) size -= 2;
+      if (action === "reset") size = 16;
+      localStorage.setItem("fontSize", String(size));
+      applyFontSize();
+    }
+
+    function applyFontSize() {
+      const size = localStorage.getItem("fontSize") || "16";
+      document.documentElement.style.setProperty("--font-size-base", size + "px");
+    }
+
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+    function showSection(sectionId) {
+      document.getElementById("authSection").classList.remove("active");
+      document.getElementById("dashboardSection").classList.remove("active");
+      document.getElementById(sectionId).classList.add("active");
+    }
+
+    function showMessage(elementId, message) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.textContent = message;
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 3000);
+    }
+
+    function showError(elementId, message) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      el.textContent = message;
+      el.style.display = "block";
+      setTimeout(() => { el.style.display = "none"; }, 3500);
+    }
+
+    function hideAllViews() {
+      ["feedView","myGroupsView","allGroupsView","createGroupView","groupDetailView","profileView"]
+        .forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = "none";
+        });
+    }
+
+    function setActiveTab(index) {
+      const tabs = document.querySelectorAll(".nav-tab");
+      tabs.forEach((t, i) => {
+        if (i === index) {
+          t.classList.add("active");
+          t.setAttribute("aria-selected", "true");
+        } else {
+          t.classList.remove("active");
+          t.setAttribute("aria-selected", "false");
+        }
+      });
+    }
+
+    // ---------------------------
+    // Auth
+    // ---------------------------
+    function showRegister() {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "block";
+    }
+
+    function showLogin() {
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("loginForm").style.display = "block";
+    }
+
+    function register(event) {
+      event.preventDefault();
+      const fullName = document.getElementById("regFullName").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      const bio = document.getElementById("regBio").value.trim();
+
+      if (!fullName || !username || !password) {
+        showError("authError", "Please fill in all required fields");
+        return;
+      }
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      if (users.find(u => u.username === username)) {
+        showError("authError", "Username already exists");
+        return;
+      }
+
+      const newUser = {
+        id: Date.now().toString(),
+        fullName,
+        username,
+        password,
+        bio,
+        joinedGroups: [],
+        coverPattern: "default",
+        avatarColor: "default",
+        createdAt: new Date().toISOString()
+      };
+
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      showMessage("authMessage", "Account created successfully!");
+
+      setTimeout(() => {
+        showLogin();
+        ["regFullName","regUsername","regPassword","regBio"].forEach(id => document.getElementById(id).value = "");
+      }, 900);
+    }
+
+    function login(event) {
+      event.preventDefault();
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find(u => u.username === username && u.password === password);
+
+      if (!user) {
+        showError("authError", "Invalid username or password");
+        return;
+      }
+
+      currentUser = user;
+
+      // Header
+      document.getElementById("currentUserName").textContent = user.fullName;
+      document.getElementById("userBio").textContent = user.bio || "No bio yet";
+      document.getElementById("userAvatar").textContent = user.fullName.charAt(0).toUpperCase();
+
+      // Desktop summary
+      syncDesktopProfileSummary();
+
+      // Apply customization
+      applyProfileCustomization();
+
+      // Load rails
+      renderLeftRailGroups();
+
+      // Go dashboard
+      showSection("dashboardSection");
+      showFeed();
+    }
+
+    function logout() {
+      currentUser = null;
+      currentGroupId = null;
+      showSection("authSection");
+      document.getElementById("loginUsername").value = "";
+      document.getElementById("loginPassword").value = "";
+    }
+
+    // ---------------------------
+    // Desktop Rails
+    // ---------------------------
+    function syncDesktopProfileSummary() {
+      const n = document.getElementById("currentUserNameDesktop");
+      const b = document.getElementById("userBioDesktop");
+      const a = document.getElementById("userAvatarDesktop");
+      if (!currentUser) return;
+
+      if (n) n.textContent = currentUser.fullName;
+      if (b) b.textContent = currentUser.bio || "No bio yet";
+      if (a) a.textContent = currentUser.fullName.charAt(0).toUpperCase();
+    }
+
+    function renderLeftRailGroups() {
+      const container = document.getElementById("leftRailGroups");
+      if (!container || !currentUser) return;
+
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+
+      if (myGroups.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); margin:0;">No groups yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = myGroups.slice(0, 6).map(g => `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:10px 0; border-top: 1px solid rgba(255,255,255,0.08);">
+          <div style="min-width:0;">
+            <div style="font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+            <div style="color:var(--text-secondary); font-size:0.85rem;">${g.members.length} members</div>
+          </div>
+          <button style="margin:0; padding:8px 12px;" onclick="viewGroup('${g.id}')">Open</button>
+        </div>
+      `).join("");
+    }
+
+    // ---------------------------
+    // Navigation
+    // ---------------------------
+    function showFeed() {
+      hideAllViews();
+      document.getElementById("feedView").style.display = "block";
+      setActiveTab(0);
+      loadStories();
+      loadFeed();
+    }
+
+    function showMyGroups() {
+      hideAllViews();
+      document.getElementById("myGroupsView").style.display = "block";
+      setActiveTab(1);
+      loadMyGroups();
+    }
+
+    function showAllGroups() {
+      hideAllViews();
+      document.getElementById("allGroupsView").style.display = "block";
+      setActiveTab(2);
+      loadAllGroups();
+    }
+
+    function showCreateGroup() {
+      hideAllViews();
+      document.getElementById("createGroupView").style.display = "block";
+      setActiveTab(3);
+    }
+
+    function showProfile() {
+      hideAllViews();
+      document.getElementById("profileView").style.display = "block";
+
+      // Fill profile fields
+      document.getElementById("profileDisplayName").textContent = currentUser.fullName;
+      document.getElementById("profileDisplayBio").textContent = currentUser.bio || "No bio yet";
+      document.getElementById("profileAvatarLarge").textContent = currentUser.fullName.charAt(0).toUpperCase();
+      document.getElementById("profileName").value = currentUser.fullName;
+      document.getElementById("profileBio").value = currentUser.bio || "";
+
+      loadProfileStats();
+      applyProfileCustomization();
+    }
+
+    // ---------------------------
+    // Groups
+    // ---------------------------
+    function createGroup(event) {
+      event.preventDefault();
+      const name = document.getElementById("groupName").value.trim();
+      const description = document.getElementById("groupDescription").value.trim();
+      const category = document.getElementById("groupCategory").value;
+
+      if (!name || !description) {
+        showError("groupMessage", "Please fill in all fields");
+        return;
+      }
+
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const newGroup = {
+        id: Date.now().toString(),
+        name,
+        description,
+        category,
+        creatorId: currentUser.id,
+        members: [currentUser.id],
+        createdAt: new Date().toISOString()
+      };
+
+      groups.push(newGroup);
+      localStorage.setItem("groups", JSON.stringify(groups));
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const idx = users.findIndex(u => u.id === currentUser.id);
+      users[idx].joinedGroups.push(newGroup.id);
+      localStorage.setItem("users", JSON.stringify(users));
+      currentUser = users[idx];
+
+      showMessage("groupMessage", "Group created successfully!");
+      document.getElementById("groupName").value = "";
+      document.getElementById("groupDescription").value = "";
+
+      // rails refresh
+      renderLeftRailGroups();
+
+      setTimeout(() => showMyGroups(), 800);
+    }
+
+    function loadMyGroups() {
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+      const container = document.getElementById("myGroupsList");
+
+      if (myGroups.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📁</div><p>You haven't joined any groups yet.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = myGroups.map(g => `
+        <div class="group-card">
+          <h3 style="background:var(--gradient-rainbow); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${g.name}</h3>
+          <p style="color:var(--text-secondary);">${g.description}</p>
+          <p style="color:var(--text-secondary);"><strong>Category:</strong> ${g.category}</p>
+          <p style="color:var(--text-secondary);"><strong>Members:</strong> ${g.members.length}</p>
+          <button onclick="viewGroup('${g.id}')">View Group</button>
+        </div>
+      `).join("");
+    }
+
+    function loadAllGroups() {
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const container = document.getElementById("allGroupsList");
+
+      if (groups.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🔍</div><p>No groups yet. Create one!</p></div>`;
+        return;
+      }
+
+      container.innerHTML = groups.map(g => {
+        const isMember = g.members.includes(currentUser.id);
+        return `
+          <div class="group-card">
+            <h3 style="background:var(--gradient-rainbow); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">${g.name}</h3>
+            <p style="color:var(--text-secondary);">${g.description}</p>
+            <p style="color:var(--text-secondary);"><strong>Category:</strong> ${g.category}</p>
+            <p style="color:var(--text-secondary);"><strong>Members:</strong> ${g.members.length}</p>
+            ${isMember
+              ? `<button onclick="viewGroup('${g.id}')">View Group</button>`
+              : `<button onclick="joinGroup('${g.id}')">Join Group</button>`
+            }
+          </div>
+        `;
+      }).join("");
+    }
+
+    function joinGroup(groupId) {
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const gIdx = groups.findIndex(g => g.id === groupId);
+      if (gIdx === -1) return;
+
+      if (!groups[gIdx].members.includes(currentUser.id)) {
+        groups[gIdx].members.push(currentUser.id);
+        localStorage.setItem("groups", JSON.stringify(groups));
+
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const uIdx = users.findIndex(u => u.id === currentUser.id);
+        users[uIdx].joinedGroups.push(groupId);
+        localStorage.setItem("users", JSON.stringify(users));
+        currentUser = users[uIdx];
+
+        renderLeftRailGroups();
+        loadAllGroups();
+        loadStories();
+        syncDesktopProfileSummary();
+      }
+    }
+
+    function viewGroup(groupId) {
+      currentGroupId = groupId;
+      hideAllViews();
+      document.getElementById("groupDetailView").style.display = "block";
+      loadGroupDetail();
+    }
+
+    function loadGroupDetail() {
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const group = groups.find(g => g.id === currentGroupId);
+      if (!group) return;
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      document.getElementById("groupDetailName").textContent = group.name;
+      document.getElementById("groupDetailDescription").textContent = group.description;
+      document.getElementById("groupDetailCategory").textContent = `Category: ${group.category}`;
+
+      const memberNames = group.members.map(id => {
+        const u = users.find(x => x.id === id);
+        return `<span style="display:inline-block; background:var(--gradient-purple); padding:6px 10px; border-radius:999px; margin:6px 6px 0 0; font-weight:900; font-size:0.8rem;">${u ? u.fullName : "Unknown"}</span>`;
+      }).join("");
+
+      document.getElementById("groupMembers").innerHTML = memberNames;
+      loadPosts();
+    }
+
+    // ---------------------------
+    // Posts / Likes / Comments
+    // ---------------------------
+    function createPost(event) {
+      event.preventDefault();
+      const content = document.getElementById("newPostContent").value.trim();
+      if (!content) return;
+
+      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+      posts.push({
+        id: Date.now().toString(),
+        groupId: currentGroupId,
+        authorId: currentUser.id,
+        content,
+        createdAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("posts", JSON.stringify(posts));
+      document.getElementById("newPostContent").value = "";
+
+      loadPosts();
+      loadStories();
+    }
+
+    function loadPosts() {
+      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const likes = JSON.parse(localStorage.getItem("likes") || "[]");
+      const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+      const container = document.getElementById("postsContainer");
+
+      const groupPosts = posts.filter(p => p.groupId === currentGroupId)
+                              .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      if (groupPosts.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💬</div><p>No posts yet. Be the first to share something!</p></div>`;
+        return;
+      }
+
+      container.innerHTML = groupPosts.map(post => {
+        const author = users.find(u => u.id === post.authorId);
+        const date = new Date(post.createdAt).toLocaleString();
+        const postLikes = likes.filter(l => l.postId === post.id);
+        const isLiked = postLikes.some(l => l.userId === currentUser.id);
+        const postComments = comments.filter(c => c.postId === post.id);
+
+        return `
+          <div class="post">
+            <div class="post-header">
+              <div class="post-author">
+                <div class="post-avatar">${(author?.fullName || "?").charAt(0).toUpperCase()}</div>
+                <div>
+                  <div class="post-author-name">${author?.fullName || "Unknown"}</div>
+                  <div class="post-time">${date}</div>
+                </div>
+              </div>
+            </div>
+            <div class="post-content">${escapeHtml(post.content)}</div>
+            <div class="post-actions">
+              <button class="post-action-btn ${isLiked ? "liked" : ""}" onclick="toggleLike('${post.id}', true)">
+                ❤️ ${postLikes.length} ${postLikes.length === 1 ? "Like" : "Likes"}
+              </button>
+              <button class="post-action-btn" onclick="toggleComments('${post.id}')">
+                💬 ${postComments.length} ${postComments.length === 1 ? "Comment" : "Comments"}
+              </button>
+            </div>
+            <div id="comments-${post.id}" class="comments-section" style="display:none;">
+              <div id="commentsList-${post.id}"></div>
+              <div class="comment-input">
+                <input type="text" id="commentInput-${post.id}" placeholder="Write a comment..." />
+                <button onclick="addComment('${post.id}')">Post</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleLike(postId, reloadGroupPosts=false) {
+      const likes = JSON.parse(localStorage.getItem("likes") || "[]");
+      const idx = likes.findIndex(l => l.postId === postId && l.userId === currentUser.id);
+      if (idx > -1) likes.splice(idx, 1);
+      else likes.push({ id: Date.now().toString(), postId, userId: currentUser.id, createdAt: new Date().toISOString() });
+      localStorage.setItem("likes", JSON.stringify(likes));
+
+      if (reloadGroupPosts) loadPosts();
+      loadFeed(); // keep feed in sync too
+    }
+
+    function toggleComments(postId) {
+      const el = document.getElementById(`comments-${postId}`);
+      if (!el) return;
+      if (el.style.display === "none") {
+        el.style.display = "block";
+        loadComments(postId);
+      } else {
+        el.style.display = "none";
+      }
+    }
+
+    function loadComments(postId) {
+      const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const container = document.getElementById(`commentsList-${postId}`);
+
+      const postComments = comments.filter(c => c.postId === postId)
+                                   .sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+      if (postComments.length === 0) {
+        container.innerHTML = `<p style="color:var(--text-muted); font-size:0.9rem;">No comments yet.</p>`;
+        return;
+      }
+
+      container.innerHTML = postComments.map(c => {
+        const author = users.find(u => u.id === c.authorId);
+        const date = new Date(c.createdAt).toLocaleString();
+        return `
+          <div class="comment">
+            <div class="comment-header">
+              <span class="comment-author">${author?.fullName || "Unknown"}</span>
+              <span style="color:var(--text-muted);">${date}</span>
+            </div>
+            <div class="comment-content">${escapeHtml(c.content)}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function addComment(postId) {
+      const input = document.getElementById(`commentInput-${postId}`);
+      const content = input.value.trim();
+      if (!content) return;
+
+      const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+      comments.push({
+        id: Date.now().toString(),
+        postId,
+        authorId: currentUser.id,
+        content,
+        createdAt: new Date().toISOString()
+      });
+
+      localStorage.setItem("comments", JSON.stringify(comments));
+      input.value = "";
+
+      loadComments(postId);
+      loadPosts();
+      loadFeed();
+      loadProfileStats();
+    }
+
+    // ---------------------------
+    // Feed
+    // ---------------------------
+    function loadFeed() {
+      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const likes = JSON.parse(localStorage.getItem("likes") || "[]");
+      const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+
+      const container = document.getElementById("feedContainer");
+      const myGroupIds = currentUser.joinedGroups || [];
+
+      let feedPosts = posts.slice();
+
+      if (currentFilter === "myGroups") {
+        feedPosts = feedPosts.filter(p => myGroupIds.includes(p.groupId));
+      } else if (currentFilter === "recent") {
+        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        feedPosts = feedPosts.filter(p => new Date(p.createdAt) > oneDayAgo);
+      }
+
+      feedPosts.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      if (feedPosts.length === 0) {
+        container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📰</div><p>No posts to show yet.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = feedPosts.map(post => {
+        const author = users.find(u => u.id === post.authorId);
+        const group = groups.find(g => g.id === post.groupId);
+        const date = new Date(post.createdAt).toLocaleString();
+
+        const postLikes = likes.filter(l => l.postId === post.id);
+        const isLiked = postLikes.some(l => l.userId === currentUser.id);
+        const postComments = comments.filter(c => c.postId === post.id);
+
+        return `
+          <div class="post">
+            <div class="post-header">
+              <div class="post-author">
+                <div class="post-avatar">${(author?.fullName || "?").charAt(0).toUpperCase()}</div>
+                <div>
+                  <div class="post-author-name">${author?.fullName || "Unknown"} <span style="color:var(--text-muted); font-weight:700;">in ${group?.name || "Unknown"}</span></div>
+                  <div class="post-time">${date}</div>
+                </div>
+              </div>
+            </div>
+            <div class="post-content">${escapeHtml(post.content)}</div>
+            <div class="post-actions">
+              <button class="post-action-btn ${isLiked ? "liked" : ""}" onclick="toggleLike('${post.id}', false)">❤️ ${postLikes.length}</button>
+              <button class="post-action-btn" onclick="viewGroup('${post.groupId}')">💬 ${postComments.length}</button>
+              <button class="post-action-btn" onclick="viewGroup('${post.groupId}')">View Group</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function filterFeedByType(type, btnEl) {
+      currentFilter = type;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      loadFeed();
+    }
+
+    function filterFeed() {
+      const term = document.getElementById("feedSearch").value.toLowerCase();
+      document.querySelectorAll("#feedContainer .post").forEach(post => {
+        post.style.display = post.textContent.toLowerCase().includes(term) ? "block" : "none";
+      });
+    }
+
+    function searchMyGroups() {
+      const term = document.getElementById("groupSearch").value.toLowerCase();
+      document.querySelectorAll("#myGroupsList .group-card").forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(term) ? "block" : "none";
+      });
+    }
+
+    function searchAllGroups() {
+      const term = document.getElementById("allGroupSearch").value.toLowerCase();
+      document.querySelectorAll("#allGroupsList .group-card").forEach(card => {
+        card.style.display = card.textContent.toLowerCase().includes(term) ? "block" : "none";
+      });
+    }
+
+    // ---------------------------
+    // Stories
+    // ---------------------------
+    function loadStories() {
+      const wrapper = document.getElementById("storiesWrapper");
+      if (!wrapper || !currentUser) return;
+
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+      const myGroupIds = currentUser.joinedGroups || [];
+      const myGroups = groups.filter(g => myGroupIds.includes(g.id));
+
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentPosts = posts.filter(p => myGroupIds.includes(p.groupId) && new Date(p.createdAt) > oneDayAgo);
+
+      const groupActivity = {};
+      recentPosts.forEach(p => {
+        groupActivity[p.groupId] = groupActivity[p.groupId] || [];
+        groupActivity[p.groupId].push(p);
+      });
+
+      let html = `
+        <div class="story-item add-story" onclick="showCreateGroup()">
+          <div class="story-avatar-wrapper"><div class="story-avatar"></div></div>
+          <div class="story-name">Add Group</div>
+        </div>
+      `;
+
+      const activityIds = Object.keys(groupActivity);
+
+      if (activityIds.length > 0) {
+        activityIds.forEach(groupId => {
+          const group = groups.find(g => g.id === groupId);
+          if (!group) return;
+          const postCount = groupActivity[groupId].length;
+          html += `
+            <div class="story-item" onclick="viewGroup('${groupId}')">
+              <div class="story-avatar-wrapper">
+                <div class="story-avatar">${group.name.charAt(0).toUpperCase()}</div>
+                <div class="story-badge">${postCount}</div>
+              </div>
+              <div class="story-name">${group.name}</div>
+            </div>
+          `;
+        });
+      } else {
+        myGroups.forEach(group => {
+          html += `
+            <div class="story-item" onclick="viewGroup('${group.id}')">
+              <div class="story-avatar-wrapper">
+                <div class="story-avatar viewed">${group.name.charAt(0).toUpperCase()}</div>
+              </div>
+              <div class="story-name">${group.name}</div>
+            </div>
+          `;
+        });
+      }
+
+      wrapper.innerHTML = html;
+    }
+
+    // ---------------------------
+    // Profile
+    // ---------------------------
+    function updateProfile(event) {
+      event.preventDefault();
+      const fullName = document.getElementById("profileName").value.trim();
+      const bio = document.getElementById("profileBio").value.trim();
+
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const idx = users.findIndex(u => u.id === currentUser.id);
+
+      users[idx].fullName = fullName;
+      users[idx].bio = bio;
+      localStorage.setItem("users", JSON.stringify(users));
+      currentUser = users[idx];
+
+      // Update header
+      document.getElementById("currentUserName").textContent = fullName;
+      document.getElementById("userBio").textContent = bio || "No bio yet";
+      document.getElementById("userAvatar").textContent = fullName.charAt(0).toUpperCase();
+
+      // Update profile view header
+      document.getElementById("profileDisplayName").textContent = fullName;
+      document.getElementById("profileDisplayBio").textContent = bio || "No bio yet";
+      document.getElementById("profileAvatarLarge").textContent = fullName.charAt(0).toUpperCase();
+
+      syncDesktopProfileSummary();
+      showMessage("profileMessage", "Profile updated!");
+      setTimeout(() => showFeed(), 800);
+    }
+
+    function loadProfileStats() {
+      const groups = JSON.parse(localStorage.getItem("groups") || "[]");
+      const posts = JSON.parse(localStorage.getItem("posts") || "[]");
+      const comments = JSON.parse(localStorage.getItem("comments") || "[]");
+
+      const myGroups = groups.filter(g => g.members.includes(currentUser.id));
+      const myPosts = posts.filter(p => p.authorId === currentUser.id);
+      const myComments = comments.filter(c => c.authorId === currentUser.id);
+
+      document.getElementById("profileGroupCount").textContent = myGroups.length;
+      document.getElementById("profilePostCount").textContent = myPosts.length;
+      document.getElementById("profileCommentCount").textContent = myComments.length;
+    }
+
+    // ---------------------------
+    // Customization
+    // ---------------------------
+    let selectedCoverPattern = "default";
+    let selectedAvatarColor = "default";
+
+    function openCustomization() {
+      document.getElementById("customizationModal").classList.add("active");
+      selectedCoverPattern = currentUser.coverPattern || "default";
+      selectedAvatarColor = currentUser.avatarColor || "default";
+      highlightSelectedPattern(selectedCoverPattern);
+      highlightSelectedAvatar(selectedAvatarColor);
+    }
+    function closeCustomization() {
+      document.getElementById("customizationModal").classList.remove("active");
+    }
+    function selectCoverPattern(pattern) {
+      selectedCoverPattern = pattern;
+      highlightSelectedPattern(pattern);
+    }
+    function selectAvatarColor(color) {
+      selectedAvatarColor = color;
+      highlightSelectedAvatar(color);
+    }
+
+    function highlightSelectedPattern(pattern) {
+      document.querySelectorAll(".pattern-option").forEach(o => o.classList.remove("selected"));
+      const options = Array.from(document.querySelectorAll(".pattern-option"));
+      // last option is default rainbow
+      if (pattern === "default") options[options.length - 1]?.classList.add("selected");
+      else {
+        const el = document.querySelector(`.pattern-option.${pattern}`);
+        if (el) el.classList.add("selected");
+      }
+    }
+
+    function highlightSelectedAvatar(color) {
+      document.querySelectorAll(".avatar-color-option").forEach(o => o.classList.remove("selected"));
+      const options = document.querySelectorAll(".avatar-color-option");
+      const map = {
+        "gradient-1": 0, "gradient-2": 1, "gradient-3": 2, "gradient-4": 3,
+        "gradient-5": 4, "gradient-6": 5, "gradient-7": 6, "default": 7
+      };
+      const idx = map[color] ?? 7;
+      options[idx]?.classList.add("selected");
+    }
+
+    function saveCustomization() {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const idx = users.findIndex(u => u.id === currentUser.id);
+      users[idx].coverPattern = selectedCoverPattern;
+      users[idx].avatarColor = selectedAvatarColor;
+      localStorage.setItem("users", JSON.stringify(users));
+      currentUser = users[idx];
+
+      applyProfileCustomization();
+      syncDesktopProfileSummary();
+      closeCustomization();
+      showMessage("profileMessage", "Customization saved!");
+    }
+
+    function applyProfileCustomization() {
+      const cover = document.getElementById("profileCover");
+      const bigAvatar = document.getElementById("profileAvatarLarge");
+      const headerAvatar = document.getElementById("userAvatar");
+      const desktopAvatar = document.getElementById("userAvatarDesktop");
+
+      if (!currentUser || !cover || !bigAvatar || !headerAvatar) return;
+
+      // cover
+      if (currentUser.coverPattern && currentUser.coverPattern !== "default") {
+        cover.className = `profile-cover ${currentUser.coverPattern}`;
+      } else {
+        cover.className = "profile-cover";
+      }
+
+      // avatar gradient
+      const gradients = {
+        "gradient-1": "linear-gradient(135deg, #667eea, #764ba2)",
+        "gradient-2": "linear-gradient(135deg, #f093fb, #f5576c)",
+        "gradient-3": "linear-gradient(135deg, #4facfe, #00f2fe)",
+        "gradient-4": "linear-gradient(135deg, #43e97b, #38f9d7)",
+        "gradient-5": "linear-gradient(135deg, #fa709a, #fee140)",
+        "gradient-6": "linear-gradient(135deg, #ff6b6b, #ff4d6d)",
+        "gradient-7": "linear-gradient(135deg, #c77dff, #9d4edd)",
+        "default": "var(--gradient-rainbow)"
+      };
+      const g = gradients[currentUser.avatarColor] || gradients["default"];
+      bigAvatar.style.background = g;
+      headerAvatar.style.background = g;
+      if (desktopAvatar) desktopAvatar.style.background = g;
+    }
+
+    // ---------------------------
+    // Safety: escape user content
+    // ---------------------------
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    // ---------------------------
+    // Boot
+    // ---------------------------
+    document.addEventListener("DOMContentLoaded", () => {
+      initializeStorage();
+      showSection("authSection");
+    });
+  </script>
+</body>
+</html>
